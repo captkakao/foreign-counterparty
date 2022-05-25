@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+  
+  #PHP Service
+  foreign-counterparty-api-php-fpm:
+    build:
+      context: ./services/php_8.1
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_APP_NAME}-php-fpm
+    restart: always
+    tty: true
+    working_dir: /var/www/foreign-counterparty-api
+    volumes:
+       - ${FOREIGN_COUNTERPARTY_API_PATH}/:/var/www/foreign-counterparty-api
+       - ./services/php_8.1/config/php.ini:/usr/local/etc/php/conf.d/php.ini
+    networks:
+      - app-network
+
+  #Nginx Service
+  foreign-counterparty-api-nginx:
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_APP_NAME}-nginx
+    restart: always
+    tty: true
+    ports:
+      - ${FOREIGN_COUNTERPARTY_API_PORT_MAP}
+    working_dir: /var/www
+    volumes:
+       - ${FOREIGN_COUNTERPARTY_API_PATH}/:/var/www/foreign-counterparty-api
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
